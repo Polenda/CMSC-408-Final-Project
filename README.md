@@ -1,6 +1,7 @@
 # Welcome to CMSC-408 Final Project Repository
 ![Static Badge](https://img.shields.io/badge/build-passing-brightgreen) ![Static Badge](https://img.shields.io/badge/AI-YES-blue)
 ![Static Badge](https://img.shields.io/badge/contributors-3-orange) ![Static Badge](https://img.shields.io/badge/elapsed-58hr-white)
+  
   This is a clone of my school project repo for personal storage, portfolio work, and potentially further development.
 
 ## Proejct Description
