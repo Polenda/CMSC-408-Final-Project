@@ -78,3 +78,9 @@
 ### -------------------------------
 
 [Visit the webpage on localhost](http://localhost:5000)
+
+## Tech Stack:
+
+Frontend - HTML, BulmaCSS
+
+Backend - Python, MYSQL
