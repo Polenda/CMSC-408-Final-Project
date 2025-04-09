@@ -1,0 +1,414 @@
+---
+title: Deliverable 8
+author:
+    - name: Daniel Polen, Luca Doutt, Joe Hughes
+format:
+    html:
+        embed-resources: true
+        html-math-method: katex
+        theme: spacelab
+        toc: true
+---
+
+<!-- Project Resource Links -->
+## Resource Links:
+
+[Link to GITHUB Repo](https://github.com/cmsc-vcu/cmsc408-fa2024-hw4-Polenda/tree/main)
+
+[Link to Pitch Video](https://youtu.be/oPBcCLzkizI)
+
+[Link to Design Video](https://youtu.be/5pK4Z2PRxYE)
+<!-- temp link for design video -->
+
+# Problem Description
+
+## Problem domain: 
+
+  The gaming ecosystem consists of diverse players, platforms, developers, and publishers. Players engage with games across multiple systems (e.g., PC, consoles, mobile) and wish to track their experiences. This can involve personal statistics like completion times, game value, ratings, and interactions with various developers, publishers, and platforms. The entities listed represent the gaming data landscape—spanning personal user info, game details, genre classifications, completion stats, and platform specifics. The challenge is to unify these in a cohesive database where users can comprehensively track their gaming journey.
+
+## Need: 
+
+  Players want a centralized hub to manage their gaming experiences, compare progress, and analyze trends, including game ratings and completion times. It provides insights into player preferences and interactions with developers and publishers.
+
+## User roles and use cases: 
+
+  Player/User: Tracks games, rates them, and logs completion times. Administrator: Manages database content (e.g., adding games, genres). Use cases include adding games to the library, rating them, viewing statistics, and filtering games by platform or genre.
+
+## Security and Privacy:  
+
+  Security measures include user authentication, encryption, and data integrity safeguards. Privacy focuses on anonymizing user data, consent management, and allowing users to control or delete their data.
+
+# Database Design
+
+## Chen Notation Diagram
+```{dot}
+
+graph ER {
+    // Basic formatting for chen diagram
+    fontname="Helvetica,Arial, sans-serif"
+    fontsize=30;
+    label="Game Database"
+    labelloc="t";
+    labeljust="c";
+    bgcolor=transparent;
+    layout=neato
+    scale=1.2
+
+    // Default for nodes
+    node [fontname="Helvetica,Arial,sans-serif", fontsize=10]
+
+    // Define nodes
+    node[shape=box];
+    PersonalInfo; Library; Game; Developer; Publisher; GamePlatform; Genre; Completion;
+
+    // Define attributes
+    node[shape=ellipse];
+    userID; userRating; averageRating; // PersonalInfo
+    libraryID; totalGames; totalValue; // Library
+    gameID; year; gameValue; // Game
+    developerID; developerName; multiStudio // Developer (weak entity)
+    publisherID; publisherName; ownership; // Publisher (weak entity)
+    platformID; platformName; platformSystem; application; // GamePlatform
+    genreID; genreName; theme; perspective; // Genre
+    completionID; averageTime; personalTime; // Completion
+
+
+    // Edges
+
+    // PersonalInfo Edges
+    userID -- PersonalInfo;
+    userRating -- PersonalInfo;
+    averageRating -- PersonalInfo;
+
+    // Library Edges
+    libraryID -- Library;
+    totalGames -- Library;
+    totalValue -- Library;
+
+    // Game Edges
+    gameID -- Game;
+    year -- Game;
+    gameValue -- Game;
+
+    // Developer Edges
+    developerID -- Developer;
+    developerName -- Developer;
+    multiStudio -- Developer;
+
+    // Publisher Edges
+    publisherID -- Publisher;
+    publisherName -- Publisher;
+    ownership -- Publisher;
+
+    // GamePlatform Edges
+    platformID -- GamePlatform;
+    platformName -- GamePlatform;
+    platformSystem -- GamePlatform;
+    application -- GamePlatform;
+
+    // Genre Edges
+    genreID -- Genre;
+    genreName -- Genre;
+    theme -- Genre;
+    perspective -- Genre;
+
+    // Completion Edges
+    completionID -- Completion;
+    averageTime -- Completion;
+    personalTime -- Completion;
+
+
+    // Define Links
+    node [shape=diamond,style=filled,color=lightgrey];
+    "PersonalInfo - Library";"Library - Game";"Game - Developer"; "Game - Publisher"; "Game - GamePlatform"; "Game - Genre"; "Game - Completion";
+
+    // Set links
+
+    // PersonalInfo -- Library
+    PersonalInfo -- "PersonalInfo - Library" [label="1"];
+    "PersonalInfo - Library" -- Library[label="n"];
+
+    // Library -- Game
+    Library -- "Library - Game"[label="n"];
+    "Library - Game" -- Game [label="n"];
+
+    // Game -- Developer
+    Game -- "Game - Developer" [label="n"];
+    "Game - Developer" -- Developer[label="1"];
+
+    // Game -- Publisher
+    Game -- "Game - Publisher" [label="n"];
+    "Game - Publisher" -- Publisher[label="1"];
+
+    // Game -- GamePlatform
+    Game -- "Game - GamePlatform"[label="n"];
+    "Game - GamePlatform" -- GamePlatform[label="n"];
+
+    // Game -- Genre
+    Game -- "Game - Genre" [label="n"];
+    "Game - Genre" -- Genre[label="n"];
+
+    // Game -- Completion
+    Game -- "Game - Completion"[label="1"];
+    "Game - Completion" -- Completion[label="1"];
+}
+```
+
+## Relational Schema
+
+### PersonalInfo (User):
+
+- userID (Primary Key)
+- userRating
+- averageRating
+
+### Library:
+
+- libraryID (Primary Key)
+- totalGames
+- totalValue
+- userID (Foreign Key from PersonalInfo)
+
+### Game:
+
+- gameID (Primary Key)
+- year
+- gameValue
+
+### Developer (Weak Entity, dependent on Game):
+
+- developerID (Primary Key)
+- developerName
+- multiStudio
+- gameID (Foreign Key from Game)
+
+### Publisher (Weak Entity, dependent on Developer):
+
+- developerID (Primary Key, Foreign Key from Developer)
+- publisherName
+- ownership
+
+### GamePlatform:
+
+- platformID (Primary Key)
+- platformName
+- platformSystem
+- application
+- gameID (Foreign Key from Game)
+
+### Genre:
+
+- genreID (Primary Key)
+- genreName
+- theme
+- perspective
+- gameID (Foreign Key from Game)
+
+### Completion:
+
+- completionID (Primary Key)
+- averageTime
+- personalTime
+- gameID (Foreign Key from Game)
+- userID (Foreign Key from PersonalInfo)
+
+
+## Dependencies
+
+PersonalInfo:
+Primary key userID will be used to determine userRating & averageRating.
+
+Library:
+Primary key libraryID will be used to determine totalGames and totalValue.
+
+Game:
+Primary key gameID will be used to determine year and gameValue.
+
+Developer:
+Primary key developerID will be used to determine developerName and multiStudio.
+
+Publisher:
+Primary key publisherID will be used to determine publisherName and ownership.
+
+GamePlatform:
+Primary key platformID will be used to determine platformName, platformSystem, and application.
+
+Genre:
+Primary key genreID will be used to determine genreName, theme, and perspective.
+
+Completion:
+Primary key completionID will be used to determine averageTime and personalTime.
+
+## Normalization
+
+### What is Boyce-Codd Normal Form?
+BCNF form is based on the functional dependencies in the database. A database table is Boyce-Codd Normal form if it has a normalization form of 3.5. This means for every dependency, there has to be a superkey as well as it needing to be in third normal form.
+###
+
+Our schema is in BCNF form for the following reasons:
+
+1. For the left side of every functional dependency, that left hand side element is a superkey.
+
+2. The primary key of each entity uniquely identifies all other attributes.
+
+Since we are following BCNF form, this ensures that our relations are free of redundancy and anomalies.
+
+## Specific Queries
+
+1. What is the most frequently played game in the entire database?
+πgameID(γgameID,count(userID) as playCount(Completion))−Unsupported: no data about game play counts.
+
+2. Which games did a specific user play between two specific dates?
+σuserID=u∧startDate≥d1∧endDate≤d2(GameHistory)−Unsupported: no time-stamped play records.
+
+3. What are the multiplayer features of a specific game?
+πgameID, multiplayerFeatures(σgameID=g(Game))−Unsupported: no data on multiplayer features.
+
+4. Which games have been abandoned by the user after starting but never completed?
+πgameID(σcompletionStatus=abandoned∧userID=u(GameProgress))−Unsupported: no progress tracking data.
+
+5. What are the system requirements for a game on a specific platform?
+πgameID, platformID, systemRequirements(GamePlatform)−Unsupported: no system requirements data.
+
+6. Which users have achieved 100% completion (all achievements unlocked) in a specific game?
+πuserID(σcompletionPercentage=100∧gameID=g(Achievements))−Unsupported: no achievements or completion percentage data.
+
+7. Which games are currently available for sale or download in an online store?
+πgameID(σavailability=true(Store))−Unsupported: no game availability data.
+
+8. Which users share similar game preferences and play the same genres?
+πuserID1, userID2(σGenre.genreID=g∧userID1≠userID2(PersonalInfo⋈Library⋈Genre))−Unsupported: no data comparing user preferences.
+
+9. What was the user's personal high score in a specific game?
+πuserID, gameID, highScore(σgameID=g∧userID=u(GameScores))−Unsupported: no game score tracking.
+
+10. Which games offer downloadable content (DLC) or expansions?
+πgameID, DLC(σhasDLC=true(Game))−Unsupported: no DLC data.
+
+11. What is the user’s daily playtime average across all games?
+πuserID, avgDailyPlaytime(γuserID,avg(playtime)(GameSessions))−Unsupported: no session-based playtime data.
+
+12. Which games have won industry awards like Game of the Year?
+πgameID, award(σawardType=Game of the Year(Awards))−Unsupported: no award or recognition data.
+
+13. What is the price history for a specific game across different platforms or stores?
+πgameID, platformID, storeID, price(PriceHistory)−Unsupported: no price history or store data.
+
+14. Which games have been reviewed by a specific gaming magazine or media outlet?
+πgameID, magazineName(σmediaType=magazine(Reviews))−Unsupported: no external reviews data.
+
+15. Which developers have worked on the most games across all platforms?
+πdeveloperID(γdeveloperID,count(gameID) as gameCount(Developer))−Unsupported: no aggregated developer contributions across platforms.
+
+16. Which users in a specific geographic region have the highest average rating for a specific game?
+πuserID, region(σregion=r∧gameID=g(PersonalInfo⋈GameRatings))−Unsupported: no geographic data for users.
+
+17. What percentage of the user’s game library has been completed?
+πuserID, percentCompleted(γuserID,count(completedGames) / count(totalGames)aspercentCompleted(Library⋈Completion))−Unsupported: no explicit completed/in-progress flag for games.
+
+18. Which games have the highest resale value over time?
+πgameID, resaleValue(σtimePeriod=t(ResaleHistory))−Unsupported: no resale value or history data.
+
+19. Which games are scheduled for future release or in development?
+πgameID, releaseDate(σreleaseStatus=upcoming(Games))−Unsupported: no future release or development data.
+
+20. Find all pairs of developers who have collaborated on the same game?
+πdeveloperID1,developerID2​(σCollaborations.gameID=g​(Collaborations))−Unsupported: no collaborations data.
+
+## Sample Data
+
+### PersonalInfo
+| userID | userRating |	averageRating |
+|---|-----|-----|
+| 1	| 9.0 |	8.5 |
+| 2	| 7.5	| 8.0 |
+| 3	| 8.0	| 8.5 |
+| 4	| 6.0	| 7.2 |
+| 5	| 9.5	| 9.0 |
+
+### Library
+| libraryID |	totalGames | totalValue |	userID |
+|-----|----|-----|---|
+| 101 |	25 | 500 | 1 |
+| 102 |	12 | 300 | 2 |
+| 103	| 40 | 800 | 3 |
+| 104	| 18 | 400 | 4 |
+| 105	| 30 | 750 | 5 |
+
+### Game
+| gameID | year |	gameValue |
+|-------|------|----|
+| 1001	| 2020 | 60 |
+| 1002	| 2018 | 50 |
+| 1003	| 2021 | 70 |
+| 1004	| 2019 | 40 |
+| 1005	| 2022 | 65 |
+
+### Developer
+| developerID |	developerName | multiStudio |	gameID |
+|-----|-------------------------|-------|------|
+| 201 |	Naughty Dog             | false | 1001 |
+| 202 |	CD Projekt Red          | false | 1002 |
+| 203	| FromSoftware            | true  | 1003 |
+| 204	| Rockstar Games          | true  | 1004 |
+| 205	| Blizzard Entertainment  | false | 1005 |
+
+### Publisher
+| publisherID | publisherName |	ownership |
+|-----|-----------------------|-------------|
+| 201	| Sony Interactive      |	independent |
+| 202	| CD Projekt	          | independent |
+| 203	| Bandai Namco	        | contracted  |
+| 204	| Take-Two Interactive	| Owned       |
+| 205	| Microsoft	            | Owned       |
+
+### Gameplatform
+| platformID | platformName | platformSystem | application | gameID |
+|-----|---------------|---------|------------|------|
+| 301 |	PlayStation 5 | Console | PS Store   | 1001 |
+| 302 |	PC            | Windows | Steam      | 1002 |
+| 303	| Xbox Series X | Console | Xbox Store | 1003 |
+| 304	| PC            | Linux   | Steam      | 1004 |
+| 305	| PC            | Windows | Battle.net | 1005 |
+
+### Genre
+| genreID | genreName | theme | perspective | gameID |
+|-----|-------------------|-------------------|--------------|------|
+| 401 |	Action-Adventure  | Post-apocaluptic  | Third-person | 1001 |
+| 402 |	RPG               | Fantasy           | First-person | 1002 |
+| 403	| Soulslike         | Dark Fantasy      | Third-person | 1003 |
+| 404	| Open World        | Crime             | Orthographic | 1004 |
+| 405	| MMO-RPG           | Fantasy           | Third-person | 1005 |
+
+### Completion
+| completionID | averageTime | personalTime | gameID | userID |
+|-----|-----|----|------|---|
+| 501 |	20  | 18 | 1001 | 1 |
+| 502 |	35  | 32 | 1002 | 2 |
+| 503	| 50  | 55 | 1003 | 3 |
+| 504	| 30  | 28 | 1004 | 4 |
+| 505	| 100 | 12 | 1005 | 5 |
+
+
+# Project Management
+<!-- Draft Project Schedule -->
+```{mermaid}
+gantt
+    title  Draft Project Schedule
+    section Phase 1 Deliverable
+        Project Abstract :done, 2024-9-24, 14d
+        Team Meeting :milestone, done, crit, 2024-10-7, 1d
+        Semester Project Deliverable 8 Crunch :active, 2024-10-8, 6d
+    section Working Dockers Website
+        Pre-work & in-class studying :active, 2024-10-14, 14d
+        Docker website development :crit, 2024-10-21, 10d
+        Team reflection :milestone, 2024-10-29, 1d
+        Deliverable 9 submission :milestone, crit, 2024-10-30, 1d
+    section Phase 2 Deliverable
+        Team reflection :milestone, 2024-11-12, 1d
+        Major Database work :crit, 2024-11-1, 30d
+        Semester Proejct Final Crunch :crit 2024-12-1, 9d
+        Final Group Project meeting :milestone, 2024-12-2, 1d
+        Deliverable 12 submission :milestone, crit, 2024-12-9, 1d
+
+```

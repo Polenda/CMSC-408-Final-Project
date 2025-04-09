@@ -1,0 +1,236 @@
+---
+title: Deliverable 12
+author:
+    - name: Daniel Polen, Luca Doutt, Joe Hughes
+format:
+    html:
+        embed-resources: true
+        html-math-method: katex
+        theme: spacelab
+        toc: true
+---
+
+<!-- Project Resource Links -->
+## Resource Links:
+
+[Link to GITHUB Repo](https://github.com/cmsc-vcu/cmsc408-fa2024-proj-datalink-junction)
+
+[Link to Pitch Video](https://youtu.be/oPBcCLzkizI)
+
+[Link to Design Video](https://youtu.be/5pK4Z2PRxYE)
+
+[Link to Final Video](https://youtu.be/c_xCT7hxRyg)
+<!-- change when recording final video -->
+{{< video https://youtu.be/c_xCT7hxRyg >}}
+
+# Project Description
+
+## Problem domain: 
+
+  The gaming ecosystem consists of diverse players, platforms, developers, and publishers. Players engage with games across multiple systems (e.g., PC, consoles, mobile) and wish to track their experiences. This can involve personal statistics like completion times, game value, ratings, and interactions with various developers, publishers, and platforms. The entities listed represent the gaming data landscape—spanning personal user info, game details, genre classifications, completion stats, and platform specifics. The challenge is to unify these in a cohesive database where users can comprehensively track their gaming journey.
+
+## Need: 
+
+  Players want a centralized hub to manage their gaming experiences, compare progress, and analyze trends, including game ratings and completion times. It provides insights into player preferences and interactions with developers and publishers.
+
+## User roles and use cases: 
+
+  Player/User: Tracks games, rates them, and logs completion times and can add/remove games from their library but not the database. Will be able to separatley add games to the database but with confirmation from not only the system that the game doesn't exists, but admins to confirm the validity of the game
+
+
+# Database Design
+
+## Crows Foot Diagram
+```{dot}
+digraph crow_foot {
+    rankdir=LR;
+    fontname="Arial";
+
+    node [shape=record, fontname="Arial"];
+
+    PersonalInfo [label="{PersonalInfo|ID (PK)\lUsername\lPassword\l}"];
+    Library [label="{Library|ID (PK)\ltotalGames\ltotalValue\l}"];
+    Game [label="{Game|ID (PK)\lgamename\lgameValue\lYear\l}"];
+    LibraryGame [label="{LibraryGame|libraryID (FK)\lgameID (FK)\luserRating\l}"];
+    UserLibrary [label="{UserLibrary|userID (FK)\llibraryID (FK)\l}"];
+    Developer [label="{Developer|ID (PK)\ldeveloperName\lmultiStudio\lgameID (FK)\l}"];
+    Publisher [label="{Publisher|ID (PK)\lpublisherName\lOwnership\lgameID (FK)\l}"];
+    GamePlatform [label="{GamePlatform|ID (PK)\lplatformName\lplatformSystem\lapplication\lgameID (FK)\l}"];
+    Genre [label="{Genre|ID (PK)\lgenreName\ltheme\lperspective\lgameID (FK)\l}"];
+    Completion [label="{Completion|ID (PK)\lpersonalTime\lachievementPercent\lcompleted\luserID (FK)\lgameID (FK)\l}"];
+
+    // Define relationships
+    PersonalInfo -> UserLibrary [label="1:N", arrowhead=crow];
+    Library -> UserLibrary [label="1:N", arrowhead=crow];
+    Library -> LibraryGame [label="1:N", arrowhead=crow];
+    Game -> LibraryGame [label="1:N", arrowhead=crow];
+    Developer -> Game [label="1:N", arrowhead=crow];
+    Publisher -> Game [label="1:N", arrowhead=crow];
+    GamePlatform -> Game [label="1:N", arrowhead=crow];
+    Genre -> Game [label="1:N", arrowhead=crow];
+    Completion -> PersonalInfo [label="N:1", arrowhead=crow];
+    Completion -> Game [label="N:1", arrowhead=crow];
+}
+```
+
+## Updated Schema
+
+### PersonalInfo (User):
+
+- ID (Primary Key)
+- userRating
+- password
+
+### Library:
+
+- ID (Primary Key)
+- totalGames
+- totalValue
+
+### Game:
+
+- ID (Primary Key)
+- gameName
+- gameValue
+- year
+
+### LibraryGame:
+
+- libraryID (Foreign & Primary Key)
+- gameID (Foreign & Primary Key)
+- userRating
+
+### UserLibrary:
+
+- userID (Foreign & Primary Key)
+- libraryID (Foreign & Primary Key)
+
+### Developer (Weak Entity, dependent on Game):
+
+- ID (Primary Key)
+- developerName
+- multiStudio
+- gameID (Foreign Key from Game)
+
+### Publisher (Weak Entity, dependent on Developer):
+
+- ID (Primary Key)
+- publisherName
+- ownership
+- gameID (Foreign Key from game)
+
+### GamePlatform:
+
+- ID (Primary Key)
+- platformName
+- platformSystem
+- application
+- gameID (Foreign Key from Game)
+
+### Genre:
+
+- ID (Primary Key)
+- genreName
+- theme
+- perspective
+- gameID (Foreign Key from Game)
+
+### Completion:
+
+- completionID (Primary Key)
+- personalTime
+- acheivementPercent
+- completed
+- gameID (Foreign Key from Game)
+- userID (Foreign Key from PersonalInfo)
+
+## Project DDL
+
+--  Code specifications.
+
+--  0. Where there a conflict between the problem statement in the google doc and this file, this file wins.\
+
+--  1. creates publisher table
+
+--  2. creates genre table
+
+--  3. creates gamePlatform table
+
+--  4. creates completion table
+
+--  5. creats developer table
+
+--  6. creates game table
+
+--  7. creates library table
+
+--  8. creates personalInfo table
+
+--  9. creates LibraryGame table
+
+--  10. creates UserLibrary table
+
+--  11. sets all foreign keys that are needed
+
+--  12. alters all tables for needed beginer data
+
+
+# Project Design 
+<!-- add screenshots -->
+
+## Frontend Design 
+
+We used HTML render templates for our main component for the web pages and uses a CSS library called Bulma to easily improve the look of our HTML pages with minimum effort relatively. All of the data is shown off in a table formating. Initially you need to login to the applicaiton to show off the multiple user libraries.
+
+![Login Page](assets/login.png){width=50%}
+
+
+## Backend Design
+
+We used python and flask for the development of the backend with a single file holding the entire library of endpoints for our project. Each endpoint it used for a specific button on the web application minus a few so as you play with hte application you will be taking advantage of most of the systems we designed.
+
+![Backend Code](assets/app.png){width=50%}
+
+## Projects Funcitons
+
+Bellow describes all of the main functionalities of the web application
+
+### Create
+
+The button `Add Record` opens a pop-up window where it asks for you to input the needed data to add a new game to the database.
+
+![Add Modal](assets/add.png){width=50%}
+
+### Retrive
+
+There are multiple buttons in which to show off the data that is held within the database, the main button for this is the library button which shows a colletion of relevant data.
+
+![Library Page](assets/library.png){width=50%}
+
+### Update
+
+The button `Update Record` opens up a pop-up window where it asks for the same data as `Add Record` but requires you to give the ID of the game you want to update.
+
+![Update Modal](assets/update.png){width=50%}
+
+### Delete
+
+The button `Remove Record` opens up a pop-up window where it asks only for the ID of the game in which you want to remove.
+
+![Remove Modal](assets/remove.png){width=50%}
+
+# Reflections
+
+## Overall Reflection
+
+This project encountered more roadblocks than anticipated. We didn't expect to have to go back and rework our database design in a major way partway through the development of our web application. Additionally, we should have set aside time to outline the frontend work needed, as it was drastically overshadowed by the backend work during the early stages of the development cycle. Despite these challenges, the project went smoothly overall, especially considering the added pressures of finals week.
+
+## Roadblocks
+
+During the creation of the database using the DDL file, we realized that our original database design was inefficient for the requirements of the application. This insight came from gaining a better understanding of how databases interact with applications, which allowed us to identify how the database should be properly structured.
+
+Later, during frontend development, we initially used plain HTML. However, as the application was fleshed out and integrated with the updated database and its data, we needed a more robust way to bring everything together. After conducting some research, we adopted a CSS framework to enhance the design and functionality of our HTML documents.
+
+## Future Considerations
+
+The biggest future improvement would involve updating the frontend using a React platform along with Tailwind or a better CSS framework. Once that redevelopment is complete, we could focus on adding more pages to the library—particularly a page to edit data for each game and the ability to filter each tab without relying solely on buttons. Additional future work could include enabling users to communicate with each other, both directly (person-to-person) and indirectly (data-to-data). One prime example would be adding functionality for users to view each other’s libraries. Another major improvment would be the movement of the update and delete buttons to the sides of each record in the tables rows. this would allow you to be able to see the data when going ot update a game instead of having to put in the new data each time. similarly the delete button owuld delete teh game of the row in which it is located.

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMSC-408 Final Project</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css"
+    >
+</head>
+<div class="theme-dark"> 
+    <body>
+        <div class="container is-widescreen">
+            <div class="notification is-link">
+                <p id="page-header" class="title is-1 is-spaced">LDJ Database Project</p>
+
+                
+
+                <div class="field">
+                    <p class="control has-icons-left has-icons-right">
+                      <input id="username-input" class="input is-rounded" type="username" placeholder="Username" color="1" />
+                      <span class="icon is-small is-left">
+                        <i class="fa-solid fa-user"></i>
+                      </span>
+                    </p>
+                  </div>
+                  <div class="field">
+                    <p class="control has-icons-left">
+                      <input id="password-input" class="input is-rounded" type="password" placeholder="Password" />
+                      <span class="icon is-small is-left">
+                        <i class="fas fa-lock"></i>
+                      </span>
+                    </p>
+                  </div>
+                <!-- Buttons for navigation -->
+                <div class="buttons">
+                    <button id="log-in" class="button is-success is-rounded">Login</button>
+            
+                </div>
+
+            
+               
+            </div>
+        </div>
+    </body>
+</div>
+    
+
+
+
+
+    <script>
+        function fetchData(u_input, p_input) {
+            fetch("http://localhost:5000/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ 
+                    username: u_input,
+                    password: p_input 
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } 
+                else {
+                    throw new Error("Login failed. Please check your username and password.");
+            }
+            })
+            .then(data => {
+                window.location.href = '/project';
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+
+
+// Event for buttons
+document.getElementById('log-in').addEventListener('click', () => {
+        console.log('Login button clicked');
+        const username = document.getElementById('username-input').value;
+        const password = document.getElementById('password-input').value;
+
+        // Call fetchData with the extracted values
+        fetchData(username, password);
+        });
+    </script>
+</body>
+</html>

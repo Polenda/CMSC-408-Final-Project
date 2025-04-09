@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMSC-408 Final Project</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css"
+    >
+</head>
+<div class="theme-dark"> 
+    <body>
+        <div class="container is-widescreen">
+            <div class="notification is-link">
+                <p id="page-header" class="title is-1 is-spaced">LDJ Database Project</p>
+                    <div id="page-info" class="subtitle is-8">Library Data</div>
+
+
+                <!-- Buttons for navigation -->
+                <div class="buttons">
+                    <button id="show-library" class="button is-success">My Library</button>
+                    <button id="show-games" class="button is-sucess">All Games</button>
+                    <button id="show-all-users" class="button is-sucess">Users</button>
+                    <button id="show-developers" class="button is-sucess">Developers & Publishers</button>
+                    
+                    <button id="edit-record" class="button is-sucess">Add/Remove Game</button>
+
+                    <button id="add-record" class="button is-primary">Add Record</button>
+                    <button id="update-record" class="button is-warning">Update Record</button>
+                    <button id="remove-record" class="button" style="background-color: #8b0000; color: white;">Remove Record</button>
+
+                    <button id="log-out" class="button is-danger">Logout</button>
+                </div>
+            
+                <!-- Table for data display -->
+                <div id="data-table" class="table-container">
+                    <table class="table is-fullwidth">
+                        
+                        <thead>
+                            <tr id="table-header">
+                                <!-- Headers will be dynamically updated -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data rows will be dynamically inserted -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </body>
+</div>
+    
+<!--Modals-->
+<div id="edit-modal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Add/Remove Game</p>
+            <button class="delete" aria-label="close" onclick="closeModal('edit-modal')"></button>
+        </header>
+        <section class="modal-card-body">
+            <input id="game-id" class="input" type="text" placeholder="Game ID">
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-success" onclick="submitEditRecord()">Edit</button>
+            <button class="button" onclick="closeModal('edit-modal')">Cancel</button>
+        </footer>
+    </div>
+</div>
+
+<div id="add-modal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Add Record</p>
+            <button class="delete" aria-label="close" onclick="closeModal('add-modal')"></button>
+        </header>
+        <section class="modal-card-body">
+            <input id="add-game-name" class="input" type="text" placeholder="Game Name">
+            <input id="add-game-value" class="input" type="number" placeholder="Game Value">
+            <input id="add-game-year" class="input" type="number" placeholder="Year">
+            <input id="add-user-rating" class="input" type="number" step="0.1" placeholder="User Rating">
+            <input id="add-developer-name" class="input" type="text" placeholder="Developer Name">
+            <input id="add-multi-studio" class="checkbox" type="checkbox"> Multi Studio
+            <input id="add-publisher-name" class="input" type="text" placeholder="Publisher Name">
+            <input id="add-ownership" class="checkbox" type="checkbox"> Ownership
+            <input id="add-personal-time" class="input" type="text" placeholder="HH:MM" maxlength="5">
+            <input id="add-achievement-percent" class="input" type="number" step="0.1" placeholder="Achievement Percent">
+            <input id="add-completed" class="checkbox" type="checkbox"> Completed
+            <input id="add-platform-name" class="input" type="text" placeholder="Platform Name">
+            <input id="add-platform-system" class="input" type="text" placeholder="Platform System">
+            <input id="add-application" class="input" type="text" placeholder="Application">
+            <input id="add-genre-name" class="input" type="text" placeholder="Genre Name">
+            <input id="add-theme" class="input" type="text" placeholder="Theme">
+            <input id="add-perspective" class="input" type="text" placeholder="Perspective">
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-success" onclick="submitAddRecord()">Add</button>
+            <button class="button" onclick="closeModal('add-modal')">Cancel</button>
+        </footer>
+    </div>
+</div>
+
+<div id="update-modal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Update Record</p>
+            <button class="delete" aria-label="close" onclick="closeModal('update-modal')"></button>
+        </header>
+        <section class="modal-card-body">
+            <input id="update-id" class="input" type="text" placeholder="Record ID">
+            <input id="update-game-name" class="input" type="text" placeholder="Game Name">
+            <input id="update-game-value" class="input" type="number" placeholder="Game Value">
+            <input id="update-game-year" class="input" type="number" placeholder="Year">
+            <input id="update-user-rating" class="input" type="number" step="0.1" placeholder="User Rating">
+            <input id="update-developer-name" class="input" type="text" placeholder="Developer Name">
+            <input id="update-multi-studio" class="checkbox" type="checkbox"> Multi Studio
+            <input id="update-publisher-name" class="input" type="text" placeholder="Publisher Name">
+            <input id="update-ownership" class="checkbox" type="checkbox"> Ownership
+            <input id="update-personal-time" class="input" type="text" placeholder="HH:MM" maxlength="5">
+            <input id="update-achievement-percent" class="input" type="number" step="0.1" placeholder="Achievement Percent">
+            <input id="update-completed" class="checkbox" type="checkbox"> Completed
+            <input id="update-platform-name" class="input" type="text" placeholder="Platform Name">
+            <input id="update-platform-system" class="input" type="text" placeholder="Platform System">
+            <input id="update-application" class="input" type="text" placeholder="Application">
+            <input id="update-genre-name" class="input" type="text" placeholder="Genre Name">
+            <input id="update-theme" class="input" type="text" placeholder="Theme">
+            <input id="update-perspective" class="input" type="text" placeholder="Perspective">
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-warning" onclick="submitUpdateRecord()">Update</button>
+            <button class="button" onclick="closeModal('update-modal')">Cancel</button>
+        </footer>
+    </div>
+</div>
+
+<div id="remove-modal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Remove Record</p>
+            <button class="delete" aria-label="close" onclick="closeModal('remove-modal')"></button>
+        </header>
+        <section class="modal-card-body">
+            <input id="remove-id" class="input" type="text" placeholder="Record ID">
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-danger" onclick="submitRemoveRecord()">Remove</button>
+            <button class="button" onclick="closeModal('remove-modal')">Cancel</button>
+        </footer>
+    </div>
+</div>
+
+
+
+    <script>
+        // Function to fetch and display data from a given route
+        function fetchData(route, headers) {
+            const pageHeader = document.getElementById('page-header');
+            title = String(route).charAt(1).toUpperCase() + String(route).slice(2);
+            pageHeader.innerText = `${title}`;
+
+            fetch(route)
+                .then(response => response.json())
+                .then(data => {
+                    const tableHeader = document.getElementById('table-header');
+                    const tableBody = document.querySelector('#data-table tbody');
+
+                    // Update table headers
+                    tableHeader.innerHTML = headers.map(header => `<th>${header}</th>`).join('');
+
+
+                    // Update table rows
+                    tableBody.innerHTML = "";
+                    data.forEach(row => {
+                        const rowHtml = `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`;
+                        tableBody.innerHTML += rowHtml;
+                        
+                    });
+                    if (route === '/library') fetchSum('/librarySum');
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    const tableBody = document.querySelector('#data-table tbody');
+                    tableBody.innerHTML = "<tr><td colspan='5'>Error loading data</td></tr>";
+                });
+        }
+
+
+        function fetchSum(route) {
+            fetch(route, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    return response.json();
+                } else {
+                    throw new Error("Received non-JSON response");
+                }
+            })
+            .then(data => {
+                // Assuming the data is in the format: [{ "TotalValue": 179.00, "TotalGames": 2 }]
+                if (data && data.length > 0) {
+                    const totalValue = data[0][0];
+                    const totalGames = data[0][1];
+
+                    // Update the text inside the <p> tag
+                    const headerElement = document.getElementById("page-info");
+                    headerElement.textContent = `Total Value: $${totalValue} | Total Games: ${totalGames}`;
+                } else {
+                    console.log("No data found.");
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+                const headerElement = document.getElementById("page-info");
+                headerElement.textContent = "Error fetching data.";
+            });
+        }
+
+
+
+// Event for buttons
+        document.getElementById('show-library').addEventListener('click', () => {
+            console.log('Show library button clicked');
+            fetchData('/library', ['ID', 'Game', 'Value', 'Rating', 'Year', 'Developer', 'Publisher', 'Genre', 'Platform', 'Application', 'Play-Time']);
+        });
+        document.getElementById('show-games').addEventListener('click', () => {
+            console.log('Show Games button clicked');
+            fetchData('/games', ['ID', 'Name', 'Value', 'Rating', 'Year', 'Play-Time', 'Trophies', 'Finished', 'Genre', 'Theme', 'Perspective', 'System', 'Application', 'Platform']);
+        });
+        document.getElementById('show-all-users').addEventListener('click', () => {
+            console.log('Show all users button clicked');
+            fetchData('/users', ['Username', 'Password']);
+        });
+        document.getElementById('show-developers').addEventListener('click', () => {
+            console.log("Show Developers button clicked");
+            fetchData('/developers-Publishers', ['ID', 'Game', 'Developer', 'Multiple Studios', 'Publisher', 'Developer Ownership']);
+        });
+        document.getElementById('log-out').addEventListener('click', () => {
+            console.log("log out button clicked");
+            window.location.href = '/';
+        });
+        document.getElementById('edit-record').addEventListener('click', () => {
+            console.log("Edit Games button clicked");
+            showEditModal();
+        });
+
+
+        // Add Record Button
+        document.getElementById('add-record').addEventListener('click', () => {
+            console.log('Add record button clicked');
+            showAddRecordModal();
+        });
+
+        // Update Record Button
+        document.getElementById('update-record').addEventListener('click', () => {
+            console.log('Update record button clicked');
+        showUpdateRecordModal();
+        });
+
+        // Remove Record Button
+        document.getElementById('remove-record').addEventListener('click', () => {
+            console.log('Remove record button clicked');
+            showRemoveRecordModal();
+        });
+
+
+        // Modal control functions
+        function showAddRecordModal() { document.getElementById('add-modal').classList.add('is-active'); }
+        function showUpdateRecordModal() { document.getElementById('update-modal').classList.add('is-active'); }
+        function showRemoveRecordModal() { document.getElementById('remove-modal').classList.add('is-active'); }
+        function showEditModal() { document.getElementById('edit-modal').classList.add('is-active'); }
+        function closeModal(modalId) { document.getElementById(modalId).classList.remove('is-active'); }
+
+
+        function submitEditRecord() {
+            const id = document.getElementById('game-id').value;
+
+            fetch('/edit', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify(id) })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Record removed:', data);
+                    closeModal('remove-modal');
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        // Submission functions
+        function submitAddRecord() {
+
+            // Game attributes
+            const gameName = document.getElementById('add-game-name').value;
+            const gameValue = document.getElementById('add-game-value').value;
+            const year = document.getElementById('add-game-year').value;
+
+            // LibraryGame attributes
+            const userRating = document.getElementById('add-user-rating').value;
+
+            // Developer attributes
+            const developerName = document.getElementById('add-developer-name').value;
+            const multiStudio = document.getElementById('add-multi-studio').checked;
+
+            // Publisher attributes
+            const publisherName = document.getElementById('add-publisher-name').value;
+            const ownership = document.getElementById('add-ownership').checked;
+
+            // Completion attributes
+            const personalTime = document.getElementById('add-personal-time').value;
+            const achievementPercent = document.getElementById('add-achievement-percent').value;
+            const completed = document.getElementById('add-completed').checked;
+
+            // GamePlatform attributes
+            const platformName = document.getElementById('add-platform-name').value;
+            const platformSystem = document.getElementById('add-platform-system').value;
+            const application = document.getElementById('add-application').value;
+
+            // Genre attributes
+            const genreName = document.getElementById('add-genre-name').value;
+            const theme = document.getElementById('add-theme').value;
+            const perspective = document.getElementById('add-perspective').value;
+
+            // Construct the payload
+            const payload = {
+                gameName, gameValue, year,
+                userRating,
+                developerName, multiStudio, publisherName, ownership,
+                personalTime, achievementPercent, completed,
+                platformName, platformSystem, application,
+                genreName, theme, perspective
+            };
+
+            fetch('/add', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify(payload) 
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Record added:', data);
+                    closeModal('edit-modal');
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function submitUpdateRecord() {
+            const id = document.getElementById('update-id').value;
+
+            // Game attributes
+            const gameName = document.getElementById('update-game-name').value;
+            const gameValue = document.getElementById('update-game-value').value;
+            const year = document.getElementById('update-game-year').value;
+
+            // LibraryGame attributes
+            const userRating = document.getElementById('update-user-rating').value;
+
+            // Developer attributes
+            const developerName = document.getElementById('update-developer-name').value;
+            const multiStudio = document.getElementById('update-multi-studio').checked;
+
+            // Publisher attributes
+            const publisherName = document.getElementById('update-publisher-name').value;
+            const ownership = document.getElementById('update-ownership').checked;
+
+            // Completion attributes
+            const personalTime = document.getElementById('update-personal-time').value;
+            const achievementPercent = document.getElementById('update-achievement-percent').value;
+            const completed = document.getElementById('update-completed').checked;
+
+            // GamePlatform attributes
+            const platformName = document.getElementById('update-platform-name').value;
+            const platformSystem = document.getElementById('update-platform-system').value;
+            const application = document.getElementById('update-application').value;
+
+            // Genre attributes
+            const genreName = document.getElementById('update-genre-name').value;
+            const theme = document.getElementById('update-theme').value;
+            const perspective = document.getElementById('update-perspective').value;
+
+            // Construct the payload
+            const payload = {
+                id, gameName, gameValue, year,
+                userRating,
+                developerName, multiStudio, publisherName, ownership,
+                personalTime, achievementPercent, completed,
+                platformName, platformSystem, application,
+                genreName, theme, perspective
+            };
+
+            // Make the fetch request
+            fetch('/update', { 
+                method: 'PUT', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify(payload) 
+            })
+                .then(response => response.json())
+                .then(data => {
+
+                    console.log('Record updated:', data);
+                    closeModal('update-modal');
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+
+        function submitRemoveRecord() {
+            const id = document.getElementById('remove-id').value;
+
+            fetch('/remove', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Record removed:', data);
+                    closeModal('remove-modal');
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

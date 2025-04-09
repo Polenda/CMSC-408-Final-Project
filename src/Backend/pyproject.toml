@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "CMSC408-Final-Project-LDJ"
+version = "0.1.0"
+description = "A Flask app connecting to MySQL database using Poetry"
+authors = ["Daniel Polen <polenda@vcu.edu>"]
+readme = "README.md"
+package-mode = false
+
+
+[tool.poetry.dependencies]
+python = "^3.8"
+flask = "^2.3.2"
+python-dotenv = "^1.0.0"
+mysql-connector-python = "^8.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
